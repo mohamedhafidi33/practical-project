@@ -44,10 +44,27 @@ get_polynomial_value <- function(p, x) {
   
   for (power in seq_along(p)) {
     coefficient <- p[power]
-    result <- result + coefficient * x^power
+    result <- result + coefficient * x^(power-1)
   }
   
   return(result)
+}
+
+integrate_polynom <- function(A, X_1, X_2) {
+  integral <- 0
+  n <- length(A)
+  
+  for (i in 1:n) {
+    integral <- integral + A[i] * (X_2^((n - i + 1)) - X_1^((n - i + 1))) / (n - i + 1)
+  }
+  
+  return(integral)
+}
+
+derivate_polynom <- function(polynom) {
+  polynom <- rev(polynom)
+  deriv_poly <- polynom[-1] * (1:length(polynom[-1]))
+  return(rev(deriv_poly))
 }
 
 
@@ -120,7 +137,7 @@ calculate_relative_error <- function(approximation, exact_value) {
 set.seed(42967)
 g = generatePolynom()
 polynomial(g)
-get_polynomial_value(g,0)
+get_polynomial_value(g,1)
 
 x <- rep(0, 1000)
 dct <- list()
