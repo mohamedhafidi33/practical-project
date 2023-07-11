@@ -18,6 +18,10 @@ generatePolynom <- function(N1=NULL,N2=NULL) {
   return(P)
 }
 
+#' @description 
+#' The convolve function performs convolution on two input vectors x and y, and returns the resulting convolution vector.
+#' @param x.
+#' @param y.
 convolve <- function(x, y) {
   n <- length(x)
   m <- length(y)
@@ -98,7 +102,10 @@ derivate_polynom <- function(polynom) {
   return(rev(deriv_poly))
 }
 
-
+#' @description 
+#' The sort_dict function takes a dictionary dic and sorts it based on its keys in ascending order. The function returns the sorted dictionary.
+#' @param dic.
+#' @return sorted_dict.
 sort_dict <- function(dic) {
   # Get the keys of the dictionary as a list
   myKeys <- names(dic)
@@ -111,6 +118,10 @@ sort_dict <- function(dic) {
   return(sorted_dict)
 }
 
+#' @description 
+#' The trapezoidal function approximates the definite integral using the trapezoidal rule based on a vector of function values. The function returns the calculated approximation of the integral.
+#' @param array.
+#' @return sumval.
 trapezoidal <- function(array) {
   n <- length(array)
   a <- 0
@@ -124,6 +135,10 @@ trapezoidal <- function(array) {
   return(sumval)
 }
 
+#' @description 
+#' The trapezoidal_inequivalent function takes vectors of x-values x and corresponding function values y and approximates the definite integral using the trapezoidal rule with unequal subintervals. The function returns the calculated approximation of the integral.
+#' @param x.
+#' @param y.
 trapezoidal_inequivalent <- function(x, y) {
   n <- length(x) - 1  # Number of subintervals
   integral <- 0.0  # Initialize the integral
@@ -138,6 +153,13 @@ trapezoidal_inequivalent <- function(x, y) {
   return(integral)
 }
 
+#' @describeIn 
+#' The montecarlo function estimates the definite integral using the Monte Carlo method based on samples and their corresponding function values within specified integration bounds. The function returns the calculated approximation of the integral.
+#' @param x.
+#' @param y.
+#' @param a.
+#' @param b.
+#' @return integral.
 montecarlo <- function(x, y, a, b) {
   n <- length(x)  # Number of samples
   integral_sum <- 0.0
@@ -153,20 +175,26 @@ montecarlo <- function(x, y, a, b) {
   return(integral)
 }
 
+#' @description 
+#' The calculate_relative_error function takes an approximation and an exact value, and calculates the relative error between them. The function returns the calculated relative error.
+#' @param approximation.
+#' @param exact_value.
 calculate_relative_error <- function(approximation, exact_value) {
   return(abs(approximation - exact_value) / abs(exact_value))
 }
 
 
-#Test
+#'
+#'Testing script that evaluates the performance of different methods for approximating the definite integral of randomly generated polynomials.
+#'
+
 set.seed(42967)
-times=50
+times=100
 Mc_fehler=0
 Tr_fehler=0
 Tr2_fehler=0
 for (i in 1:times) {
   p = generatePolynom()
-  #print(p)
   polynomial(p)
   x <- rep(0, 1000)
   dct <- list()
@@ -186,14 +214,13 @@ for (i in 1:times) {
   Mc_fehler <- Mc_fehler + calculate_relative_error(Mc,true_value)
   Tr_fehler <- Tr_fehler + calculate_relative_error(Tr,true_value)
   Tr2_fehler <- Tr2_fehler + calculate_relative_error(Tr2,true_value)
-  print("true value")
   print(true_value)
   print(Mc)
   print(Tr)
   print(Tr2)
 }
 
-
+# Finally, the average relative errors for each method are calculated by dividing the cumulative errors by the number of iterations times, and the results are printed to the console.
 print(Mc_fehler/times)
 print(Tr_fehler/times)
 print(Tr2_fehler/times)
