@@ -1,10 +1,18 @@
-generatePolynom <- function() {
+#' @description 
+#' The generatePolynom function generates a random polynomial by performing convolution on two sets of coefficients. The degrees of the polynomials can be provided as arguments to the function or randomly generated if not specified.
+#' @param N1.
+#' @param N2.
+#' @returns The function returns the vector P, which represents the coefficients of the generated polynomial.
+generatePolynom <- function(N1=NULL,N2=NULL) {
   N <- rpois(2, lambda = 4)
-  N1 <- N[1]
-  N2 <- N[2]
-  
-  C1 <- rbinom(N1+1, size = 10, prob = 0.4)
-  C2 <- rbinom(N2+1, size = 10, prob = 0.4)
+  if(is.null(N1)){ 
+    N1 <- N[1]
+  }
+  if(is.null(N2)){ 
+    N2 <- N[2]
+  }
+  C1 <- sample(-10:10,N1+1)
+  C2 <- sample(-10:10,N2+1)
   
   P <- convolve(C1, C2)
   return(P)
@@ -25,6 +33,12 @@ convolve <- function(x, y) {
   return(result)
 }
 
+
+#' @description 
+#' The polynomial function takes a vector of coefficients and creates a string representation of a polynomial expression using the specified variable name. The resulting polynomial expression is then printed to the console.
+#'  @param p.
+#'  @param default_argument_name.
+#'  
 polynomial <- function(p, default_argument_name = 'x') {
   result <- ''
   
@@ -36,9 +50,16 @@ polynomial <- function(p, default_argument_name = 'x') {
   # Remove the trailing `+` sign
   result <- substr(result, 1, nchar(result) - 1)
   
-  cat(result)
+  print(result)
 }
 
+
+#'@author Mohamed Hafidi
+#' @description 
+#' The get_polynomial_value function takes a vector of coefficients p and an input value x, and calculates the value of the polynomial for the given input. The function returns the calculated value.
+#' @param p.
+#' @param x.
+#' @returns result.
 get_polynomial_value <- function(p, x) {
   result <- 0.0
   
@@ -50,10 +71,16 @@ get_polynomial_value <- function(p, x) {
   return(result)
 }
 
+#' @description 
+#' The integrate_polynom function takes a vector of polynomial coefficients A and calculates the definite integral of the polynomial over the interval [X_1, X_2]. The function returns the calculated value of the definite integral.
+#'  @param A.
+#'  @param X_1.
+#'  @param X_2.
+#'  @returns integral.
 integrate_polynom <- function(A, X_1, X_2) {
   integral <- 0
   n <- length(A)
-  
+  A <- rev(A)
   for (i in 1:n) {
     integral <- integral + A[i] * (X_2^((n - i + 1)) - X_1^((n - i + 1))) / (n - i + 1)
   }
@@ -61,6 +88,10 @@ integrate_polynom <- function(A, X_1, X_2) {
   return(integral)
 }
 
+#' @description 
+#' The derivate_polynom function takes a vector of polynomial coefficients polynom and calculates the derivative of the polynomial. The function returns a vector representing the coefficients of the derivative polynomial.
+#' @param polynom.
+#' @return deriv_poly.
 derivate_polynom <- function(polynom) {
   polynom <- rev(polynom)
   deriv_poly <- polynom[-1] * (1:length(polynom[-1]))
@@ -128,32 +159,41 @@ calculate_relative_error <- function(approximation, exact_value) {
 
 
 #Test
-#for (i in 1:5) {
- # p = generatePolynom()
-  #print(p)
-  #polynomial(p)
-#}
-
 set.seed(42967)
-g = generatePolynom()
-polynomial(g)
-get_polynomial_value(g,1)
-
-x <- rep(0, 1000)
-dct <- list()
-for (i in 1:1000) {
-  x[i] <- runif(1, 0, 1)
-  dct[[as.character(x[i])]] <- get_polynomial_value(g,x[i])
+times=50
+Mc_fehler=0
+Tr_fehler=0
+Tr2_fehler=0
+for (i in 1:times) {
+  p = generatePolynom()
+  #print(p)
+  polynomial(p)
+  x <- rep(0, 1000)
+  dct <- list()
+  for (i in 1:1000) {
+    x[i] <- runif(1, 0, 1)
+    dct[[as.character(x[i])]] <- get_polynomial_value(p,x[i])
+  }
+  
+  dct <- sort_dict(dct)
+  result <- unlist(dct)
+  x <- as.numeric(names(dct))
+  
+  Mc <- montecarlo(x, result, 0, 1)
+  Tr <- trapezoidal(result)
+  Tr2 <- trapezoidal_inequivalent(x, result)
+  true_value = integrate_polynom(p,0,1)
+  Mc_fehler <- Mc_fehler + calculate_relative_error(Mc,true_value)
+  Tr_fehler <- Tr_fehler + calculate_relative_error(Tr,true_value)
+  Tr2_fehler <- Tr2_fehler + calculate_relative_error(Tr2,true_value)
+  print("true value")
+  print(true_value)
+  print(Mc)
+  print(Tr)
+  print(Tr2)
 }
 
-dct <- sort_dict(dct)
-result <- unlist(dct)
-x <- as.numeric(names(dct))
 
-Mc <- montecarlo(x, result, 0, 1)
-Tr <- trapezoidal(result)
-Tr2 <- trapezoidal_inequivalent(x, result)
-
-print(Mc)
-print(Tr)
-print(Tr2)
+print(Mc_fehler/times)
+print(Tr_fehler/times)
+print(Tr2_fehler/times)
